@@ -9,8 +9,11 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "cors": "^2.8.4",
     "dotenv-safe": "^6.0.0",
     "express": "^4.16.3",
+    "express-winston": "^2.6.0",
+    "helmet": "^3.13.0",
     "winston": "^3.0.0"
   }
 }

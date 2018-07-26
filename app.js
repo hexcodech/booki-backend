@@ -5,7 +5,7 @@ class App {
         this.logger = logger.setup(this);
         this.express = express.setup(this);
 
-        this.express.use(require('./middlewares'));
+        this.express.use(require('./middlewares')(this));
         this.express.use(require('./controllers'));
         express.listen(this);
     }
