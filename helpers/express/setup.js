@@ -1,7 +1,7 @@
 const Express           = require('express');
 
-module.exports = (booki) => {
+module.exports = (app) => {
     const express = Express();
-    booki.logger.info(`Helpers -> Express -> Setup - Done`);
+    app.logger.info(`Helpers -> Express -> Setup - Done`);
     return express;
 }
