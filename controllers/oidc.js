@@ -11,12 +11,10 @@ class OIDCProviderController {
             scopes: [
                 'booki_user_api'
             ],
-            async findById(ctx, id) {
-                console.dir(ctx);
-                console.dir(id);
+            async findById(reqContext, username) {
                 return {
-                    accountId: id,
-                    async claims(use, scope) { return { sub: id }; },
+                    accountId: username,
+                    async claims(use, scope) { return { sub: username }; },
                 };
             },
         });

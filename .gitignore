@@ -88,3 +88,6 @@ typings/
 
 # Private keystore
 keystore.json
+
+# Development db
+dev.sqlite3

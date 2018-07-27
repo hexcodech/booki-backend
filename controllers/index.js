@@ -1,7 +1,7 @@
 const Express                   = require('express');
 const OIDCProviderController    = require('./oidc');
 
-class AppController {
+class IndexController {
     constructor(app) {
         this.app = app;
         this.router = Express.Router();
@@ -14,4 +14,4 @@ class AppController {
     }
 }
 
-module.exports = AppController;
+module.exports = IndexController;

@@ -1,15 +1,16 @@
-const { logger, express }       = require('./helpers');
-const AppController             = require('./controllers');
+const { logger, express, db }   = require('./helpers');
+const IndexController           = require('./controllers');
 
 class App {
     constructor() {
         this.logger = logger.setup(this);
         this.express = express.setup(this);
+        this.db = db.setup(this);
 
-        this.appController = new AppController(this);
+        this.indexController = new IndexController(this);
 
         this.express.use(require('./middlewares')(this));
-        this.express.use(this.appController.router);
+        this.express.use(this.indexController.router);
 
         express.listen(this);
     }
