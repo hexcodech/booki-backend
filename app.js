@@ -6,6 +6,7 @@ class App {
         this.logger = logger.setup(this);
         this.express = express.setup(this);
         this.db = db.setup(this);
+        this.model = this.db.objection;
 
         this.indexController = new IndexController(this);
 

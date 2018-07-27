@@ -1,4 +1,5 @@
 const Knex          = require('knex');
+const Objection     = require('objection');
 
 module.exports = (app) => {
     const knex = Knex({
@@ -12,6 +13,9 @@ module.exports = (app) => {
         }
     });
 
+    const objection = Objection;
+    objection.knex(knex);
+
     app.logger.info('Helpers -> Db -> Setup - Done');
-    return knex;
+    return {knex, objection};
 };
