@@ -1,5 +1,5 @@
 const Knex          = require('knex');
-const Objection     = require('objection');
+const { Model }     = require('objection');
 
 module.exports = (app) => {
     const knex = Knex({
@@ -12,10 +12,8 @@ module.exports = (app) => {
             database: process.env.DB_NAME,
         }
     });
-
-    const objection = Objection;
-    objection.knex(knex);
+    Model.knex(knex);
 
     app.logger.info('Helpers -> Db -> Setup - Done');
-    return {knex, objection};
+    return knex;
 };
