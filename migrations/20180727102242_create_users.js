@@ -7,8 +7,7 @@ exports.up = function(knex, Promise) {
         table.increments('userID').unsigned().primary();
         table.string('username', 255).unique().notNullable();
         table.string('email', 255).unique().notNullable();
-        table.string('passwordHash', 1024);
-        table.string('passwordSalt', 10);
+        table.string('passwordHash', 60);
         table.string('oauthFacebook', 512);
         table.string('oauthTwitter', 512);
         table.string('oauthAmazon', 512);

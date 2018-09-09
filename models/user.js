@@ -1,4 +1,5 @@
 const { Model }         = require('objection');
+const Bcrypt            = require('bcrypt');
 
 class User extends Model {
     static get tableName() {
@@ -18,8 +19,7 @@ class User extends Model {
                 userID: {type: 'integer'},
                 username: {type: 'string', maxLength: 255},
                 email: {type: 'string', maxLength: 255},
-                passwordHash: {type: 'string', maxLength: 1024},
-                passwordSalt: {type: 'string', maxLength: 10},
+                passwordHash: {type: 'string', maxLength: 60},
                 oauthFacebook: {type: 'string', maxLength: 512},
                 oauthTwitter: {type: 'string', maxLength: 512},
                 oauthAmazon: {type: 'string', maxLength: 512},
@@ -35,10 +35,24 @@ class User extends Model {
             .limit(1);
         console.dir(users);
 
-        if (users[0])
+        if (users[0]) {
+            if (!(await Bcrypt.compare(password, users[0].passwordHash)))
+                throw `Wrong password`;
+
             return users[0];
+        }
         else
             throw `Account not found`;
+    }
+
+    static async register(email, username, plainPassword) {
+        return await User
+            .query()
+            .insert({
+                email,
+                username,
+                passwordHash: await Bcrypt.hash(plainPassword, 10)
+            });
     }
 }
 

@@ -14,7 +14,7 @@ class OIDCProviderController {
                 email: ['email', 'email_verified'],
             },
             interactionUrl(ctx) {
-                return `/oidc/interaction/${ctx.oidc.uuid}`;
+                return `${process.env.OIDC_INTERACTION_URL_BASE}${ctx.oidc.uuid}`;
             },
             features: {
                 // disable the packaged interactions
@@ -45,8 +45,11 @@ class OIDCProviderController {
                 }],
             });
         }).then(() => {
-            this.router.get('/oidc/interaction/:grant', (req, res) => {
+            this.router.get(`${process.env.OIDC_INTERACTION_URL_BASE}:grant`, (req, res) => {
                 this.oidc.interactionDetails(req).then(details => {
+                    details.interactionUrlBase = process.env.OIDC_INTERACTION_URL_BASE;
+                    console.log('see what else is available to you for interaction views', details);
+
                     let view;
 
                     switch (details.interaction.reason) {
@@ -60,16 +63,14 @@ class OIDCProviderController {
                     }
 
                     res.render(view, {details});
-                }).catch(err => {return err;});
+                }).catch(err => err);
             });
-            this.router.post('/oidc/interaction/:grant/confirm', (req, res) => {
+            this.router.post(`${process.env.OIDC_INTERACTION_URL_BASE}:grant/confirm`, (req, res) => {
                 this.oidc.interactionFinished(req, res, {
                     consent: {},
                 });
             });
-            this.router.post('/oidc/interaction/:grant/login', (req, res, next) => {
-                this.app.logger.info(req.body.email);
-                this.app.logger.info(req.body.password);
+            this.router.post(`${process.env.OIDC_INTERACTION_URL_BASE}:grant/login`, (req, res, next) => {
                 this.app.models.User.authenticate(req.body.email, req.body.password)
                     .then(user => this.oidc.interactionFinished(req, res, {
                         login: {
@@ -83,6 +84,12 @@ class OIDCProviderController {
                         },
                     }))
                     .catch(next);
+            });
+            this.router.post(`${process.env.OIDC_INTERACTION_URL_BASE}:grant/register`, (req, res) => {
+                this.app.models.User.register(req.body.email, req.body.username, req.body.password)
+                    .then(() => {
+                        this.app.logger.info(`User ${req.body.username} successfully registered`);
+                    });
             });
             this.router.use('/oidc', this.oidc.callback);
         }).catch(err => {
