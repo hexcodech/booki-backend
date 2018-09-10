@@ -11,7 +11,7 @@ exports.up = function(knex, Promise) {
         table.string('oauthFacebook', 512);
         table.string('oauthTwitter', 512);
         table.string('oauthAmazon', 512);
-        table.timestamps(true);
+        table.timestamps(true, true);
     });
 };
 

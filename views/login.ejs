@@ -37,6 +37,9 @@
 
 		<div class="modal static">
 			<div class="modal-dialog" role="document">
+				<% if (details.flashMessage) { %>
+					<% if (details.flashMessage == 'register_successful') { %><div class="alert alert-success" role="alert">Registration was successful! Welcome aboard ☺️</div><% } %>
+				<% } %>
 				<div class="modal-content">
 					<div class="modal-body">
 						<form id="login" method="POST" action="/oidc/interaction/<%= details.uuid %>/login">
@@ -45,45 +48,45 @@
 								<input type="email" class="form-control" id="emailLogin" name="email" <% if (!details.params.login_hint) { %>autofocus="on"<% } else { %> value="<%= details.params.login_hint %>" <% } %>>
 							</div>
 							<div class="form-group">
-								<label for="password">Password</label>
-								<input type="password" class="form-control" id="password" name="password" <% if (details.params.login_hint) { %>autofocus="on"<% } %>>
+								<label for="passwordLogin">Password</label>
+								<input type="password" class="form-control" id="passwordLogin" name="password" <% if (details.params.login_hint) { %>autofocus="on"<% } %>>
 								<small class="form-text text-muted text-xs-left">
 									<a href="#" id="showResetPassword">Forgot your password?</a>
 								</small>
-              </div>
-              <div class="form-group">
-                <label for="remember">Stay signed in</label>
-                <input type="checkbox" id="remember" name="remember" value="yes" checked="yes">
-              </div>
+							</div>
+							<div class="form-group">
+								<label for="remember">Stay signed in</label>
+								<input type="checkbox" id="remember" name="remember" value="yes" checked="yes">
+							</div>
 							<button type="submit" class="btn btn-primary btn-block">Login</button>
 							<small class="form-text text-muted text-xs-left">
 								<a href="#" id="showRegister">Don't have an account?</a>
 							</small>
 						</form>
-            <form id="register" method="POST" action="/oidc/interaction/<%= details.uuid %>/register">
-              <div class="form-group">
+						<form id="register" method="POST" action="/oidc/interaction/<%= details.uuid %>/register">
+							<div class="form-group">
 								<label for="emailRegister">Email address</label>
 								<input type="email" class="form-control" id="emailRegister" name="email">
 							</div>
 							<div class="form-group">
 								<label for="username">Username</label>
 								<input type="text" class="form-control" id="username" name="username">
-              </div>
-              <div class="form-group">
-								<label for="password">Password</label>
-								<input type="password" class="form-control" id="password" name="password" <% if (details.params.login_hint) { %>autofocus="on"<% } %>>
+							</div>
+							<div class="form-group">
+								<label for="passwordRegister">Password</label>
+								<input type="password" class="form-control" id="passwordRegister" name="password" <% if (details.params.login_hint) { %>autofocus="on"<% } %>>
 								<small class="form-text text-muted text-xs-left">
 									<a href="#" id="showResetPassword">Forgot your password?</a>
 								</small>
-              </div>
+							</div>
 							<button type="submit" class="btn btn-primary btn-block">Register</button>
 							<small class="form-text text-muted text-xs-left">
 								<a href="#" id="showLogin">Already have an account?</a>
 							</small>
-            </form>
-            <!-- TODO: Implement password reset -->
-            <form id="resetPassword" method="POST" action="">
-              Not implemented yet :(
+						</form>
+						<!-- TODO: Implement password reset -->
+						<form id="resetPassword" method="POST" action="">
+							Not implemented yet :(
 							<div class="form-group">
 								<label for="emailReset">Email address</label>
 								<input type="email" class="form-control" id="emailReset" name="email">

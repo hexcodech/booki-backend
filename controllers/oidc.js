@@ -48,8 +48,6 @@ class OIDCProviderController {
             this.router.get(`${process.env.OIDC_INTERACTION_URL_BASE}:grant`, (req, res) => {
                 this.oidc.interactionDetails(req).then(details => {
                     details.interactionUrlBase = process.env.OIDC_INTERACTION_URL_BASE;
-                    console.log('see what else is available to you for interaction views', details);
-
                     let view;
 
                     switch (details.interaction.reason) {
@@ -63,7 +61,10 @@ class OIDCProviderController {
                     }
 
                     res.render(view, {details});
-                }).catch(err => err);
+                }).catch(err => {
+                    res.status(500).json(err);
+                    this.app.logger.error(err.toString());
+                });
             });
             this.router.post(`${process.env.OIDC_INTERACTION_URL_BASE}:grant/confirm`, (req, res) => {
                 this.oidc.interactionFinished(req, res, {
@@ -72,24 +73,41 @@ class OIDCProviderController {
             });
             this.router.post(`${process.env.OIDC_INTERACTION_URL_BASE}:grant/login`, (req, res, next) => {
                 this.app.models.User.authenticate(req.body.email, req.body.password)
-                    .then(user => this.oidc.interactionFinished(req, res, {
-                        login: {
-                            account: user.userID,
-                            acr: '1',
-                            remember: !!req.body.remember,
-                            ts: Math.floor(Date.now() / 1000),
-                        },
-                        consent: {
-                            // TODO: remove offline_access from scopes if remember is not checked
-                        },
-                    }))
-                    .catch(next);
+                    .then(user => {
+                        return this.oidc.interactionFinished(req, res, {
+                            login: {
+                                account: user.userID,
+                                acr: '1',
+                                remember: !!req.body.remember,
+                                ts: Math.floor(Date.now() / 1000),
+                            },
+                            consent: {
+                                // TODO: remove offline_access from scopes if remember is not checked
+                            },
+                        })
+                            .then(() => this.app.logger.info(`User ${user.username} successfully logged in`))
+                            .catch(err => {
+                                res.status(err.statusCode).json(err);
+                                this.app.logger.error(err.toString());
+                            });
+                    })
+                    .catch(err => {
+                        res.status(401).end();
+                        this.app.logger.error(err.toString());
+                    });
             });
             this.router.post(`${process.env.OIDC_INTERACTION_URL_BASE}:grant/register`, (req, res) => {
-                this.app.models.User.register(req.body.email, req.body.username, req.body.password)
-                    .then(() => {
-                        this.app.logger.info(`User ${req.body.username} successfully registered`);
-                    });
+                this.oidc.interactionDetails(req).then(details => {
+                    this.app.models.User.register(req.body.email, req.body.username, req.body.password)
+                        .then(() => {
+                            this.app.logger.info(`User ${req.body.username} successfully registered`);
+                            details.flashMessage = 'register_successful';
+                            details.save().then(() => res.redirect(`${process.env.OIDC_INTERACTION_URL_BASE}${details.id}`));
+                        });
+                }).catch(err => {
+                    res.status(400).end();
+                    this.app.logger.error(err.toString());
+                });
             });
             this.router.use('/oidc', this.oidc.callback);
         }).catch(err => {

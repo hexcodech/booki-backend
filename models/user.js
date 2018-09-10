@@ -33,7 +33,6 @@ class User extends Model {
         const users = await User.query()
             .where('email', '=', email)
             .limit(1);
-        console.dir(users);
 
         if (users[0]) {
             if (!(await Bcrypt.compare(password, users[0].passwordHash)))
