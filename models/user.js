@@ -53,6 +53,20 @@ class User extends Model {
                 passwordHash: await Bcrypt.hash(plainPassword, 10)
             });
     }
+
+    static async loadPrivateProfile(userID) {
+        const user = await User
+            .query()
+            .where({
+                userID
+            })
+            .select(
+                'username',
+                'email',
+            )
+            .limit(1);
+        return user[0];
+    }
 }
 
 module.exports = User;

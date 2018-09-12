@@ -8,10 +8,10 @@ class OIDCProviderController {
 
         // Testurl: http://localhost:3000/oidc/auth?client_id=booki_webapp&redirect_uri=https://booki.me&response_type=id_token&scope=openid%20booki_user_api&nonce=123&state=321
         this.oidc = new OidcProvider(process.env.OIDC_ISSUER, {
-            findById: this.findById,
+            findById: (r,u) => this.findById(r,u),
             claims: {
                 openid: ['sub'],
-                email: ['email', 'email_verified'],
+                profile: ['private'],
             },
             interactionUrl(ctx) {
                 return `${process.env.OIDC_INTERACTION_URL_BASE}${ctx.oidc.uuid}`;
@@ -37,6 +37,7 @@ class OIDCProviderController {
             return this.oidc.initialize({
                 keystore,
                 clients: [{
+                    application_type: process.env.OIDC_DEBUG_MODE === 'true' ? 'native' : 'web',
                     client_id: process.env.OIDC_CLIENT_ID,
                     grant_types: process.env.OIDC_GRANT_TYPES.split(','),
                     response_types: process.env.OIDC_RESPONSE_TYPES.split(','),
@@ -118,7 +119,12 @@ class OIDCProviderController {
     async findById(reqContext, username) {
         return {
             accountId: username,
-            async claims(use, scope) { return { sub: username }; },
+            claims: async (use, scope) => { 
+                return { 
+                    sub: username,
+                    private: await this.app.models.User.loadPrivateProfile(username),
+                }; 
+            },
         };
     }
 }
