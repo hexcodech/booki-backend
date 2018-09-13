@@ -40,8 +40,9 @@ class OIDCProviderController {
                     application_type: process.env.OIDC_DEBUG_MODE === 'true' ? 'native' : 'web',
                     client_id: process.env.OIDC_CLIENT_ID,
                     grant_types: process.env.OIDC_GRANT_TYPES.split(','),
-                    response_types: process.env.OIDC_RESPONSE_TYPES.split(','),
+                    response_types: [process.env.OIDC_RESPONSE_TYPES],
                     redirect_uris: process.env.OIDC_REDIRECT_URIS.split(','),
+                    post_logout_redirect_uris: process.env.OIDC_POST_LOGOUT_REDIRECT_URIS.split(','),
                     token_endpoint_auth_method: 'none',
                 }],
             });
