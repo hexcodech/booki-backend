@@ -5,13 +5,24 @@ class OIDCProviderController {
     constructor({app, router}) {
         this.app = app;
         this.router = router;
-
-        // Testurl: http://localhost:3000/oidc/auth?client_id=booki_webapp&redirect_uri=https://booki.me&response_type=id_token&scope=openid%20booki_user_api&nonce=123&state=321
-        this.oidc = new OidcProvider(process.env.OIDC_ISSUER, {
+        
+        this.cookieKeys = [
+            this.generateCookieKey(), // Warmup the key array
+            this.generateCookieKey(),
+            this.generateCookieKey(),
+        ];
+        this.startCookieKeysRotateInterval();
+        this.oidc = new ((OidcProvider.prototype.constructor).bind(this))(process.env.OIDC_ISSUER, {
             findById: (r,u) => this.findById(r,u),
             claims: {
                 openid: ['sub'],
                 profile: ['private'],
+            },
+            cookies: {
+                keys: this.cookieKeys,
+                long: { signed: true },
+                short: { signed: true },
+                thirdPartyCheckUrl: 'https://cdn.rawgit.com/panva/3rdpartycookiecheck/92fead3f/start.html', // TODO: How can we replicate this?
             },
             interactionUrl(ctx) {
                 return `${process.env.OIDC_INTERACTION_URL_BASE}${ctx.oidc.uuid}`;
@@ -31,13 +42,17 @@ class OIDCProviderController {
                 revocation: true,
                 sessionManagement: true,
             },
+            ttl: { 
+                AccessToken: 3600,
+                IdToken: 3600
+            }
         });
 
         oidc.loadKeystore().then(keystore => {
             return this.oidc.initialize({
                 keystore,
                 clients: [{
-                    application_type: process.env.OIDC_DEBUG_MODE === 'true' ? 'native' : 'web',
+                    application_type: process.env.OIDC_DEBUG_MODE === 'true' ? 'native' : 'web', // Silent renews don't work in native type
                     client_id: process.env.OIDC_CLIENT_ID,
                     grant_types: process.env.OIDC_GRANT_TYPES.split(','),
                     response_types: [process.env.OIDC_RESPONSE_TYPES],
@@ -127,6 +142,17 @@ class OIDCProviderController {
                 }; 
             },
         };
+    }
+
+    generateCookieKey() {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+
+    startCookieKeysRotateInterval() {
+        setInterval(() => {
+            this.cookieKeys.unshift(this.generateCookieKey());
+            this.cookieKeys.pop();
+        }, 24*60*60*1000);
     }
 }
 
