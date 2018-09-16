@@ -127,6 +127,7 @@ class OIDCProviderController {
                 });
             });
             this.router.use('/oidc', this.oidc.callback);
+            this.app.logger.info('Controllers -> AppController -> OidcController - Done');
         }).catch(err => {
             this.app.logger.error(err);
         });

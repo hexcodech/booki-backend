@@ -1,5 +1,6 @@
 const Express                   = require('express');
 const OIDCProviderController    = require('./oidc');
+const SearchController          = require('./search');
 
 class IndexController {
     constructor(app) {
@@ -11,6 +12,7 @@ class IndexController {
 
     initControllers() {
         this.oidcProviderController = new OIDCProviderController(this);
+        this.searchController = new SearchController(this);
     }
 }
 
