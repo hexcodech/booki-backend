@@ -4,7 +4,7 @@ exports.up = function(knex, Promise) {
         table.collate('utf8_general_ci');
         table.charset('utf8');
 
-        table.increments('userID').unsigned().primary();
+        table.bigIncrements('userID').unsigned().primary();
         table.string('username', 255).unique().notNullable();
         table.string('email', 255).unique().notNullable();
         table.string('passwordHash', 60);
