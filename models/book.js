@@ -1,4 +1,6 @@
 const { Model }         = require('objection');
+const Offer             = require('./offer');
+const Image             = require('./image');
 
 class Book extends Model {
     static get tableName() {
@@ -16,7 +18,7 @@ class Book extends Model {
 
             properties: {
                 bookID: {type: 'integer'},
-                isbn: {type: 'isbn'},
+                isbn: {type: 'integer'},
                 isbn10: {type: 'string', maxLength: 10},
                 title: {type: 'string', maxLength: 1024},
                 authors: {type: 'string', maxLength: 1024},
@@ -27,11 +29,32 @@ class Book extends Model {
                 pages: {type: 'integer'},
                 description: {type: 'string'},
                 imageID: {type: 'integer'},
-                listPrice: {type: 'decimal'},
+                listPrice: {type: 'number'},
                 language: {type: 'string'},
                 approved: {type: 'boolean'},
                 created_at: {type: 'integer'},
                 updated_at: {type: 'integer'},
+            }
+        };
+    }
+
+    static get relationMappings() {
+        return {
+            offers: {
+                relation: Model.HasManyRelation,
+                modelClass: Offer,
+                join: {
+                    from: 'books.bookID',
+                    to: 'offers.bookID',
+                }
+            },
+            image: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: Image,
+                join: {
+                    from: 'books.imageID',
+                    to: 'images.imageID',
+                }
             }
         };
     }

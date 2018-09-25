@@ -16,6 +16,7 @@ exports.up = function(knex, Promise) {
         table.integer('pages');
         table.text('description');
         table.bigInteger('imageID').unsigned();
+        // Add imageID foreign key after create_images migration
         table.decimal('listPrice');
         table.string('language', 5);
         table.boolean('approved');
@@ -24,5 +25,5 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function(knex, Promise) {
-    return knex.schema.dropTable('books');
+    return knex.schema.dropTableIfExists('books');
 };

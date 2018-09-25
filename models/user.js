@@ -1,5 +1,9 @@
 const { Model }         = require('objection');
 const Bcrypt            = require('bcrypt');
+const Offer             = require('./offer');
+const OfferQuestion     = require('./offerQuestion');
+const OfferAnswer       = require('./offerAnswer');
+const Image             = require('./image');
 
 class User extends Model {
     static get tableName() {
@@ -25,6 +29,43 @@ class User extends Model {
                 oauthAmazon: {type: 'string', maxLength: 512},
                 created_at: {type: 'integer'},
                 updated_at: {type: 'integer'},
+            }
+        };
+    }
+
+    static get relationMappings() {
+        return {
+            offers: {
+                relation: Model.HasManyRelation,
+                modelClass: Offer,
+                join: {
+                    from: 'users.userID',
+                    to: 'offers.userID',
+                }
+            },
+            offerQuestions: {
+                relation: Model.HasManyRelation,
+                modelClass: OfferQuestion,
+                join: {
+                    from: 'users.userID',
+                    to: 'offer_questions.userID',
+                }
+            },
+            offerAnswers: {
+                relation: Model.HasManyRelation,
+                modelClass: OfferAnswer,
+                join: {
+                    from: 'users.userID',
+                    to: 'offer_answers.userID',
+                }
+            },
+            images: {
+                relation: Model.HasManyRelation,
+                modelClass: Image,
+                join: {
+                    from: 'users.userID',
+                    to: 'images.userID',
+                }
             }
         };
     }
